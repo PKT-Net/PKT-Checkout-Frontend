@@ -1,0 +1,51 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PKT Checkout - Frontend - Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@100..900&display=swap" rel="stylesheet">
+    <style type="text/css">
+        html, body { margin: 0; padding: 0; background-color: #ECF0F1; font-family: 'Raleway', Verdana, sans-serif; }
+        body { padding: 50px; }
+        .text-center { text-align: center; }
+        h1 { margin: 0 0 30px; color: #34495E; }
+        .card { color: #34495E; margin: 0 auto; background-color: #ffffff; padding: 30px; max-width: 500px; border-radius: 4px; box-shadow: 0px 3px 6px 0px rgba(140, 149, 159, 0.15); }
+        .card p { margin: 7px 0; line-height: 1; }
+    </style>
+</head>
+<body>
+    <div class="text-center">
+        <h1>Checkout page</h1>
+        <div class="card">
+            <p><strong>Invoice ID:</strong> <span id="invoice-id"></span></p>
+            <br>
+            <p><strong>Description:</strong> <span id="invoice-description"></span></p>
+            <p><strong>Amount:</strong> <span id="invoice-amount"></span></p>
+            <p><strong>Address:</strong> <span id="invoice-address"></span></p>
+            <p><strong>Expiration:</strong> <span id="invoice-expiration"></span></p>
+            <p><strong>Status:</strong> <span id="invoice-status"></span></p>
+        </div>
+    </div>
+</body>
+<script>
+    // Here you would fetch the public invoice data from the backend (it's fine exposing the X-VIEW-KEY to the user)
+    // Present a QR code for checkout, animation when invoice status changes to paid, etc.
+    const usp = new URLSearchParams(window.location.search);
+    document.getElementById("invoice-id").textContent = usp.get("invoice");
+    function getInvoiceData()
+    {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("GET", "http://127.0.0.1:5000/v1/invoices/public/".concat(usp.get("invoice")),false);
+        xmlHttp.setRequestHeader("X-VIEW-KEY", "5bf88570-16f6-4d56-a0b3-608931d8a110");
+        xmlHttp.send(null);
+        parsedResponse = JSON.parse(xmlHttp.responseText);
+        document.getElementById("invoice-description").textContent = parsedResponse['paymentDescription'];
+        document.getElementById("invoice-amount").textContent = (parsedResponse['paymentAmount'] / 1000000).toString().concat(" PKT");
+        document.getElementById("invoice-address").textContent = parsedResponse['paymentAddress'];
+        document.getElementById("invoice-expiration").textContent = parsedResponse['expirationTime'];
+        document.getElementById("invoice-status").textContent = parsedResponse['status'];
+    }
+    getInvoiceData();
+    setInterval(getInvoiceData, 5000);
+</script>
+</html>
